@@ -38,9 +38,9 @@ namespace ua.lab.oaa.Components{
                         return 0;
                     }
 
-                    trie = new Trie(null, words[1]);
+                    trie = new Trie(words[1]);
 					triesInCache.Add(trie);
-                    ErrorNoTrie();
+                    Console.WriteLine("Success!");
                     break;
 
                 case Commands.INSERT:
@@ -50,6 +50,7 @@ namespace ua.lab.oaa.Components{
 
                     if(triesInCache.Exists(x => x.name == words[1])){
                         triesInCache.Find(x => x.name == words[1]).AddWord(words[2].Trim('"'));
+                        Console.WriteLine("Success!");
                     }else{
                         ErrorNoTrie();
                     }
@@ -62,11 +63,11 @@ namespace ua.lab.oaa.Components{
 
                     if(triesInCache.Exists(x => x.name == words[1])){
                         triesInCache.Find(x => x.name == words[1]).PrintTrie();
+						Console.WriteLine("Success!");
                     }else{
                         ErrorNoTrie();
                         return 0;
                     }
-                    Console.WriteLine("Success!");
                     break;
 
                 case Commands.CONTAINS:
@@ -106,7 +107,7 @@ namespace ua.lab.oaa.Components{
 		}
 
 		static private void ErrorNoTrie(){
-			Console.WriteLine("This trie doesnt exists. Try create it with command 1");
+			Console.WriteLine("This trie doesnt exists. Try create it with command CREATE");
 		}
 
 

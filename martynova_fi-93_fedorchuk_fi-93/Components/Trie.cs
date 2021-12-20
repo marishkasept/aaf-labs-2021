@@ -5,25 +5,8 @@ namespace ua.lab.oaa.Components{
     class Trie{
         public Node Root = new Node();
         public string name;
-        public Trie(string[] words, string newName) {
+        public Trie(string newName) {
             name = newName;
-            if(words != null){
-            for (int w = 0; w < words.Length; w++){
-                var word = words[w];
-                var node = Root;
-                for (int len = 0; len < word.Length; len++){
-                    var letter = word[len];
-                    Node next;
-                    if (!node.Edges.TryGetValue(letter.ToString(), out next)){
-                        next = new Node();
-                        node.Edges.Add(letter.ToString(), next);
-                    }
-                    node = next;
-                }
-
-            }
-            CompressNodes(Root);
-            }
         }
 
         public void PrintTrie(){
@@ -45,6 +28,7 @@ namespace ua.lab.oaa.Components{
                             string newKey = string.Concat(key, nextKey);
                             Node newNode;
                             nextNode.Edges.TryGetValue(nextKey, out newNode);
+							newNode.IsWordList.Insert(0, nextNode.IsWordList[0]);
                             itemsToAdd.Add(newKey, newNode);
                             keysToRemove.Add(key);
                         }
@@ -75,7 +59,9 @@ namespace ua.lab.oaa.Components{
                 for(int i = 0; i < key.Length; i++) {
                     if (i == 0)
                     {
-                        itemsToAdd.Add(key[0].ToString(), new Node());
+						var tempNode = new Node();
+						tempNode.IsWordList.Add(nextNode.IsWordList[0]);
+                        itemsToAdd.Add(key[0].ToString(), tempNode);
                         continue;
                     }
                     Node newNode = new Node();
@@ -97,12 +83,19 @@ namespace ua.lab.oaa.Components{
                     if (i == key.Length - 1)
                     {
                         if (nextNode != null) {
+							var lastIsWord = nextNode.IsWordList[nextNode.IsWordList.Count - 1];
+							nextNode.IsWordList.Clear();
+							nextNode.IsWordList.Add(lastIsWord);
                             newNode.Edges.Add(currentKey, nextNode);
                         } else {
-                            newNode.Edges.Add(currentKey, new Node());
+							var node = new Node();
+							node.IsWordList.Add(nextNode.IsWordList[i]);
+                            newNode.Edges.Add(currentKey, node);
                         }
                     } else {
-                        newNode.Edges.Add(currentKey, new Node());
+						var nodeNew = new Node();
+						nodeNew.IsWordList.Add(nextNode.IsWordList[i]);
+                        newNode.Edges.Add(currentKey, nodeNew);
                     }
 
                 }
@@ -127,8 +120,12 @@ namespace ua.lab.oaa.Components{
                     CompressNodes(Root);
                     return false;
                 }
+				if(i == word.Length - 1){
+					bool result = node.IsWordList[0];
+					CompressNodes(Root);
+            		return result;
+				}
             }
-            CompressNodes(Root);
             return true;
         }
 
@@ -145,6 +142,12 @@ namespace ua.lab.oaa.Components{
                     node.Edges.Add(letter.ToString(), next);
                 }
                 node = next;
+				next.IsWordList.Clear();
+				if(len == word.Length - 1){
+					next.IsWordList.Add(true);
+				} else{
+					next.IsWordList.Add(false);
+				}
             }
             CompressNodes(Root);
         }

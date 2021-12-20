@@ -4,6 +4,7 @@ using System.Text;
 namespace ua.lab.oaa.Components{
     class Node{
         public Dictionary<String, Node> Edges = new Dictionary<String, Node>();
+		public List<bool> IsWordList = new List<bool>();
 
         override public String ToString() {
             StringBuilder buffer = new StringBuilder(50);
