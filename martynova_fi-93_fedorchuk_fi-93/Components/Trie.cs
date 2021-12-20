@@ -25,9 +25,12 @@ namespace ua.lab.oaa.Components{
             CompressNodes(Root);
             }
         }
+
         public void PrintTrie(){
             Console.WriteLine(Root.ToString());
         }
+
+
 
         public void CompressNodes(Node currentNode){
             List<string> keysToRemove = new List<string>();
@@ -104,6 +107,47 @@ namespace ua.lab.oaa.Components{
 
                 }
             }
-         }
+
+            foreach(var key in keysToRemove){
+                currentNode.Edges.Remove(key);
+            }
+
+            itemsToAdd.ToList().ForEach(x => currentNode.Edges.Add(x.Key, x.Value));
+        }
+
+        public bool ContainsWord(string word) {
+            UncompressNodes(Root);
+            Node node = Root;
+            for(int i = 0; i < word.Length; i++){
+                var letter = word[i];
+                Node next;
+                if (node.Edges.TryGetValue(letter.ToString(), out next)) {
+                    node = next;
+                } else {
+                    CompressNodes(Root);
+                    return false;
+                }
+            }
+            CompressNodes(Root);
+            return true;
+        }
+
+
+        public void AddWord(string word){
+            UncompressNodes(Root);
+            var node = Root;
+            for (int len = 0; len < word.Length; len++){
+                var letter = word[len];
+                Node next;
+                if (!node.Edges.TryGetValue(letter.ToString(), out next))
+                {
+                    next = new Node();
+                    node.Edges.Add(letter.ToString(), next);
+                }
+                node = next;
+            }
+            CompressNodes(Root);
+        }
+
     }
 }
