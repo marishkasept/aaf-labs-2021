@@ -22,7 +22,88 @@ namespace ua.lab.oaa.Components{
                 }
 
             }
+            CompressNodes(Root);
             }
         }
+        public void PrintTrie(){
+            Console.WriteLine(Root.ToString());
+        }
+
+        public void CompressNodes(Node currentNode){
+            List<string> keysToRemove = new List<string>();
+            Dictionary<string, Node> itemsToAdd = new Dictionary<string, Node>();
+            foreach(var key in currentNode.Edges.Keys){
+                Node nextNode;
+                currentNode.Edges.TryGetValue(key, out nextNode);
+                CompressNodes(nextNode);
+                if(nextNode != null){
+                    if(nextNode.Edges.Count == 1){
+                        foreach(var nextKey in nextNode.Edges.Keys){
+                            string newKey = string.Concat(key, nextKey);
+                            Node newNode;
+                            nextNode.Edges.TryGetValue(nextKey, out newNode);
+                            itemsToAdd.Add(newKey, newNode);
+                            keysToRemove.Add(key);
+                        }
+
+                    }
+                }
+            }
+
+            foreach(var key in keysToRemove){
+                currentNode.Edges.Remove(key);
+            }
+
+            itemsToAdd.ToList().ForEach(x => currentNode.Edges.Add(x.Key, x.Value));
+        }
+
+        public void UncompressNodes(Node currentNode){
+            List<string> keysToRemove = new List<string>();
+            Dictionary<string, Node> itemsToAdd = new Dictionary<string, Node>();
+            foreach(var key in currentNode.Edges.Keys){
+                Node nextNode;
+                if(currentNode.Edges.TryGetValue(key, out nextNode)){
+                    UncompressNodes(nextNode);
+                }
+                if(key.Length <= 1){
+                    continue;
+                }
+                keysToRemove.Add(key);
+                for(int i = 0; i < key.Length; i++) {
+                    if (i == 0)
+                    {
+                        itemsToAdd.Add(key[0].ToString(), new Node());
+                        continue;
+                    }
+                    Node newNode = new Node();
+                    string currentLetter = key[i].ToString();
+                    int index = 0;
+                    string currentKey = key[index].ToString();
+                    Node newNextNode;
+                    itemsToAdd.TryGetValue(currentKey, out newNode);
+                    index++;
+                    currentKey = key[index].ToString();
+                    while (newNode.Edges.TryGetValue(currentKey, out newNextNode))
+                    {
+                        newNode = newNextNode;
+                        index++;
+                        currentKey = key[index].ToString();
+                    }
+
+
+                    if (i == key.Length - 1)
+                    {
+                        if (nextNode != null) {
+                            newNode.Edges.Add(currentKey, nextNode);
+                        } else {
+                            newNode.Edges.Add(currentKey, new Node());
+                        }
+                    } else {
+                        newNode.Edges.Add(currentKey, new Node());
+                    }
+
+                }
+            }
+         }
     }
 }
