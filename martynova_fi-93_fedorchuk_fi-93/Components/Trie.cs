@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace ua.lab.oaa.Components{
     class Trie{
@@ -7,6 +8,7 @@ namespace ua.lab.oaa.Components{
         public string name;
         public Trie(string newName) {
             name = newName;
+			Root.IsWordList.Add(false);
         }
 
         public void PrintTrie(){
@@ -151,6 +153,82 @@ namespace ua.lab.oaa.Components{
             }
             CompressNodes(Root);
         }
+
+		public void PrintAllWords(bool isAsc){
+			UncompressNodes(Root);
+			List<string> resultWords = new List<string>();
+			DFSPrint(Root, "", resultWords);
+			if(isAsc){
+				for(int i = 0; i < resultWords.Count; i++){
+					Console.WriteLine(resultWords[i]);
+				}
+			} else{
+				for(int i = resultWords.Count - 1; i >= 0; i--){
+					Console.WriteLine(resultWords[i]);
+				}
+			}
+			CompressNodes(Root);
+		}
+
+		private void DFSPrint(Node currentNode, string word, List<string> results){
+        	Node next;
+			if(currentNode.IsWordList[0]){
+				results.Add(word);
+			}
+            foreach(var key in currentNode.Edges.Keys){
+                Node nextNode;
+                currentNode.Edges.TryGetValue(key, out nextNode);
+				word = String.Concat(word, key);
+				DFSPrint(nextNode, word, results);
+				word = word.Remove(word.Length-1);
+            }
+       }
+
+		public void GetRegexWord(string regex, bool isAsc){
+			UncompressNodes(Root);
+			List<string> resultWords = new List<string>();
+			DFSPrint(Root, "", resultWords);
+			List<string> answer = new List<string>();
+			foreach(var word in resultWords){
+				if(Regex.Match(word, regex).Success){
+					answer.Add(word);
+				}
+			}
+			if(isAsc){
+				for(int i = 0; i < answer.Count; i++){
+					Console.WriteLine(answer[i]);
+				}
+			} else{
+				for(int i = answer.Count - 1; i >= 0; i--){
+					Console.WriteLine(answer[i]);
+				}
+			}
+			CompressNodes(Root);
+		}
+
+		public void GetBetweenWords(string from, string to, bool isAsc){
+			UncompressNodes(Root);
+			List<string> resultWords = new List<string>();
+			DFSPrint(Root, "", resultWords);
+			List<string> answer = new List<string>();
+			foreach(var word in resultWords){
+				if(String.Compare(word, from) != -1 && String.Compare(word, to) != 1){
+					answer.Add(word);
+				}
+			}
+			if(isAsc){
+				for(int i = 0; i < answer.Count; i++){
+					Console.WriteLine(answer[i]);
+				}
+			} else{
+				for(int i = answer.Count - 1; i >= 0; i--){
+					Console.WriteLine(answer[i]);
+				}
+			}
+			CompressNodes(Root);
+		}
+
+
 
     }
 }
