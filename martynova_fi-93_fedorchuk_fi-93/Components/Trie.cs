@@ -186,24 +186,61 @@ namespace ua.lab.oaa.Components{
 
 		public void GetRegexWord(string regex, bool isAsc){
 			UncompressNodes(Root);
-			List<string> resultWords = new List<string>();
-			DFSPrint(Root, "", resultWords);
 			List<string> answer = new List<string>();
-			foreach(var word in resultWords){
-				if(Regex.Match(word, regex).Success){
-					answer.Add(word);
+			RegexFind(Root, regex, "", answer);
+			List<string> result = new List<string>();
+			foreach(var word in answer){
+				if(!result.Contains(word)){
+					result.Add(word);
 				}
 			}
 			if(isAsc){
-				for(int i = 0; i < answer.Count; i++){
-					Console.WriteLine(answer[i]);
+				for(int i = 0; i < result.Count; i++){
+					Console.WriteLine(result[i]);
 				}
 			} else{
-				for(int i = answer.Count - 1; i >= 0; i--){
-					Console.WriteLine(answer[i]);
+				for(int i = result.Count - 1; i >= 0; i--){
+					Console.WriteLine(result[i]);
 				}
 			}
 			CompressNodes(Root);
+		}
+
+		private void RegexFind(Node currentNode, string regexStr, string word, List<string> results){
+			Node current = currentNode;
+			Node next = currentNode;
+			for(int i = 0; i < regexStr.Length; i++){
+				if(next != null){
+					current = next;
+				}
+
+				switch(regexStr[i]){
+					case '?':
+						foreach(var key in current.Edges.Keys){
+							Node temp;
+							if(current.Edges.TryGetValue(key, out temp)){
+								word = String.Concat(word, key);
+								RegexFind(temp, regexStr, word, results);
+								word = word.Remove(word.Length-1);
+							}
+						}
+						break;
+					case '*':
+						DFSPrint(current, word, results);
+						break;
+					default:
+						if(current.Edges.TryGetValue(regexStr[i].ToString(), out next)){
+							word = String.Concat(word, regexStr[i]);
+						}
+						break;
+				}
+				if(i == regexStr.Length - 1){
+					if(next != null && next.IsWordList[0]){
+						results.Add(word);
+					}
+				}
+			}
+
 		}
 
 		public void GetBetweenWords(string from, string to, bool isAsc){

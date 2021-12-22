@@ -8,6 +8,10 @@ namespace ua.lab.oaa.Components{
 		private const string WHERE_COMMAND = "WHERE";
         static public int StartCommand(string userCommand, List<Trie> triesInCache)
         {
+			if(!userCommand.Contains(';')){
+				Console.WriteLine("Error! Need semicolon (;) for end of the command");
+				return 0;
+			}
             Commands choice = Commands.EXIT;
 			Trie trie;
 			userCommand = Regex.Replace(userCommand, @"\s+", " ");
@@ -132,7 +136,7 @@ namespace ua.lab.oaa.Components{
 							}
 							break;
 						case 5:
-							if(words[2] != WHERE_COMMAND){
+							if(words[2].ToUpper() != WHERE_COMMAND){
 								Console.WriteLine("Incorrect WHERE word. Try use WHERE in third word");
 								break;
 							}
